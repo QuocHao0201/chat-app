@@ -1,0 +1,177 @@
+import React, { useState } from "react";
+import { FiPhone, FiLock } from "react-icons/fi";
+import { Link, useNavigate } from "react-router-dom";
+import PhoneValidate from "../utils/PhoneValidate";
+import PasswordValidate from "../utils/PasswordValidate";
+import FullNameValidate from "../utils/FullNameValidate";
+import GenderValidate from "../utils/GenderValidate";
+import DateOfBirthValidate from "../utils/DateOfBirthValidate";
+import EmailValidate from "../utils/EmailValidate";
+import { signUp } from "../api/auth/signUp";
+
+export default function RegisterForm() {
+  const [form, setForm] = useState({
+    fullName: "",
+    phone: "",
+    password: "",
+    gender: "",
+    dateOfBirth: "",
+    email: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [registerStatus, setRegisterStatus] = useState("");
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleRegister = async () => {
+    const newErrors = {};
+
+    if (!FullNameValidate(form.fullName)) {
+      newErrors.fullName = "❌ Họ tên không hợp lệ";
+    }
+    if (!PhoneValidate(form.phone)) {
+      newErrors.phone = "❌ Số điện thoại không hợp lệ";
+    }
+    if (!PasswordValidate(form.password)) {
+      newErrors.password = "❌ Mật khẩu không hợp lệ";
+    }
+    if (!GenderValidate(form.gender)) {
+      newErrors.gender = "❌ Vui lòng chọn giới tính";
+    }
+    if (!DateOfBirthValidate(form.dateOfBirth)) {
+      newErrors.dateOfBirth = "❌ Vui lòng chọn ngày sinh";
+    }
+    if (!EmailValidate(form.email)) {
+      newErrors.email = "❌ Email không hợp lệ";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+    const data =  await signUp(form);
+      alert("✅ Đăng ký thành công!");
+      navigate("/home");
+     
+    } catch (error) {
+      alert(error.response.data.message);
+    }
+  };
+
+  return (
+    <div className="bg-white w-[400px] mx-auto rounded-2xl shadow-md px-8 py-6 text-left mt-8">
+      <h3 className="text-lg font-bold mb-6 text-center">Tạo tài khoản Zalo</h3>
+
+      {/* Họ tên */}
+      <div className="mb-4">
+        <input
+          type="text"
+          name="fullName"
+          placeholder="Họ và tên"
+          value={form.fullName}
+          onChange={handleChange}
+          className="w-full border-b border-gray-300 py-2 outline-none bg-transparent"
+        />
+        {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
+      </div>
+
+      {/* Số điện thoại */}
+      <div className="mb-4">
+        <div className="flex items-center border-b border-gray-300 py-2">
+          <FiPhone className="text-gray-500 mr-2" />
+          <span className="text-gray-700 mr-2">+84</span>
+          <input
+            type="text"
+            name="phone"
+            placeholder="Số điện thoại"
+            value={form.phone}
+            onChange={handleChange}
+            className="w-full outline-none bg-transparent"
+          />
+        </div>
+        {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+      </div>
+
+      {/* Email */}
+      <div className="mb-4">
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          className="w-full border-b border-gray-300 py-2 outline-none bg-transparent"
+        />
+        {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+      </div>
+
+      {/* Mật khẩu */}
+      <div className="mb-4">
+        <div className="flex items-center border-b border-gray-300 py-2">
+          <FiLock className="text-gray-500 mr-2" />
+          <input
+            type="password"
+            name="password"
+            placeholder="Mật khẩu"
+            value={form.password}
+            onChange={handleChange}
+            className="w-full outline-none bg-transparent"
+          />
+        </div>
+        {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+      </div>
+
+      {/* Giới tính */}
+      <div className="mb-4">
+        <select
+          name="gender"
+          value={form.gender}
+          onChange={handleChange}
+          className="w-full border-b border-gray-300 py-2 outline-none bg-transparent"
+        >
+          <option value="">Chọn giới tính</option>
+          <option value="male">Nam</option>
+          <option value="female">Nữ</option>
+          <option value="other">Khác</option>
+        </select>
+        {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
+      </div>
+
+      {/* Ngày sinh */}
+      <div className="mb-4">
+        <input
+          type="date"
+          name="dateOfBirth"
+          value={form.dateOfBirth}
+          onChange={handleChange}
+          className="w-full border-b border-gray-300 py-2 outline-none bg-transparent"
+        />
+        {errors.dateOfBirth && <p className="text-red-500 text-sm">{errors.dateOfBirth}</p>}
+      </div>
+
+      {/* Nút đăng ký */}
+      <button
+        onClick={handleRegister}
+        className="w-full bg-[#61b3ff] hover:bg-[#429eff] text-white font-semibold py-2 rounded-md transition duration-200"
+      >
+        Đăng ký tài khoản
+      </button>
+
+      {/* Trạng thái */}
+      {registerStatus && <p className="text-center text-sm mt-4 text-[#0068ff] font-medium">{registerStatus}</p>}
+
+      {/* Quay lại đăng nhập */}
+      <div className="text-center mt-4">
+        <Link to="/" className="text-[#0068ff] font-semibold hover:underline">
+          Quay lại đăng nhập
+        </Link>
+      </div>
+    </div>
+  );
+}
