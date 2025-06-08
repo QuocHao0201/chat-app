@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginForm from "./components/LoginForm";  // chỉnh theo đúng folder
-import RegisterForm from "./components/RegisterForm";
+import Login from "./pages/Login";  // chỉnh theo đúng folder
+import Register from "./pages/Register";
 import Home from "./pages/Home";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -9,8 +9,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginForm />} />
-        <Route path="/register" element={<RegisterForm />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
       </Routes>
     </Router>
