@@ -5,7 +5,7 @@ import TabNavigation from "./TabNavigation";
 import Avatar from "./Avatar";
 import avatar from "../assets/avt.jfif"
 
-const ChatList = ({ userName, sizeIcon }) => {
+const ChatList = ({ sizeIcon }) => {
   return (
     <div className="w-[300px] border border-gray-200 h-full overflow-y-auto bg-white">
       {/* Thanh tìm kiếm + nút thêm */}

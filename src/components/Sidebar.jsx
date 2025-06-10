@@ -6,7 +6,7 @@ import { IoSettingsOutline, IoClose } from "react-icons/io5";
 import { PiToolboxLight } from "react-icons/pi";
 import avatar from "../assets/avt.jfif";
 
-const Sidebar = () => {
+const Sidebar = ({userName, gender, dateOfBirth, phone}) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const dropdownRef = useRef(null);
@@ -128,23 +128,23 @@ const Sidebar = () => {
                 alt="avatar"
                 className="w-20 h-20 rounded-full object-cover mb-2"
               />
-              <h3 className="text-xl font-bold">Huỳnh Quốc Hào</h3>
+              <h3 className="text-xl font-bold">{userName}</h3>
             </div>
 
             <div className="mt-4">
               <div className="mb-2">
                 <label className="text-sm text-gray-600">Giới tính</label>
-                <div className="font-medium">Nam</div>
+                <div className="font-medium">{gender}</div>
               </div>
 
               <div className="mb-2">
                 <label className="text-sm text-gray-600">Ngày sinh</label>
-                <div className="font-medium">02 tháng 01, 2002</div>
+                <div className="font-medium">{dateOfBirth}</div>
               </div>
 
               <div className="mb-2">
                 <label className="text-sm text-gray-600">Điện thoại</label>
-                <div className="font-medium">+84 355 112 561</div>
+                <div className="font-medium">{phone}</div>
               </div>
 
               <div className="text-xs text-gray-500 italic">

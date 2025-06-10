@@ -62,7 +62,7 @@ export default function LoginForm() {
         setLoginStatus("Vui lòng thử lại.");
       } else {
         console.log(data);
-        navigate("/home", { state: { userName: data.account.user.fullName } });
+        navigate("/home", { state: { userName: data.account.user.fullName, gender: data.account.user.gender } });
       }
     } catch (err) {
       setModalMessage(err.response?.data?.message || "❌ Đăng nhập thất bại!");

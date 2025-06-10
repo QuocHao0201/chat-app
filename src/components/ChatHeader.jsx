@@ -10,7 +10,7 @@ import Avatar from "./Avatar";
 const ChatHeader = () => {
   return (
     <div className="h-[60px] border border-gray-200 flex items-center px-4 justify-between bg-white">
-      <div className="flex items-center justify-center space-x-2">
+      <div className="flex items-center space-x-2">
         <Avatar src={avatar} alt="avatar" size={50}/>
         <span className="font-semibold">Huỳnh Quốc Hào</span>
       </div>
