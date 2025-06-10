@@ -1,45 +1,61 @@
-const ChatList = () => {
+import { CiSearch } from "react-icons/ci";
+import { IoPersonAddOutline } from "react-icons/io5";
+import { AiOutlineUsergroupAdd } from "react-icons/ai";
+import TabNavigation from "./TabNavigation";
+import Avatar from "./Avatar";
+import avatar from "../assets/avt.jfif"
+
+const ChatList = ({ userName, sizeIcon }) => {
   return (
-    <div className="w-[300px] border-r h-full overflow-y-auto bg-white">
-      <div className="flex p-3 items-center">
-        <input
-          className="w-full p-2 border rounded-md mr-3"
-          type="text"
-          placeholder="Tìm kiếm"
-        />
-          <button className="hover:bg-blue-500 p-2 rounded transition">
-            <i className="fas fa-user-plus"></i>
-          </button>
-          <button className="hover:bg-blue-500 p-2 rounded transition">
-            <i className="fas fa-users"></i>
-          </button>
-      </div>
-
-      {/* Tab Filter */}
-      <div className="flex justify-between px-3 text-blue-600 font-medium">
-        <button className="hover:bg-gray-300 border-b-2 border-blue-600 pb-1">Tất cả</button>
-        <button className="hover:bg-gray-300 border-blue-600 pb-1">Chưa đọc</button>
-        <button className="hover:bg-gray-300 border-blue-600 pb-1">Phân loại</button>
-        
-      </div>
-
-      {/* Chat items */}
-      <div className="mt-2 space-y-1">
-        <div className="px-3 py-2 hover:bg-gray-100 flex items-center justify-between">
-          <div>
-            <div className="font-semibold">Cloud của tôi</div>
-            <div className="text-xs text-gray-500">Bạn: 9</div>
-          </div>
-          <span className="text-xs text-gray-400">10 giờ</span>
+    <div className="w-[300px] border border-gray-200 h-full overflow-y-auto bg-white">
+      {/* Thanh tìm kiếm + nút thêm */}
+      <div className="flex items-center gap-2 p-3">
+        {/* Input tìm kiếm với icon */}
+        <div className="relative flex-1">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-lg">
+            <CiSearch />
+          </span>
+          <input
+            type="text"
+            placeholder="Tìm kiếm"
+            className="w-full bg-[#ebecf0] pl-9 pr-3 py-[6px] text-sm rounded-md focus:outline-none"
+          />
         </div>
 
-        {/* Chat được chọn */}
-        <div className="px-3 py-2 bg-blue-100 flex items-center justify-between">
-          <div>
-            <div className="font-semibold text-blue-600">Võ Đình Chung</div>
-            <div className="text-xs text-gray-500">Bạn: <i className="far fa-sticky-note"></i> Sticker</div>
+        {/* Nút thêm người */}
+        <button className="hover:bg-[#ebecf0] p-2 rounded transition">
+          <IoPersonAddOutline size={sizeIcon} />
+        </button>
+        <button className="hover:bg-[#ebecf0] p-2 rounded transition">
+          <AiOutlineUsergroupAdd size={sizeIcon} />
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <TabNavigation />
+
+      {/* Danh sách tin nhắn */}
+      <div className="mt-2 space-y-1">
+        {/* Một item tin nhắn */}
+        <div className="px-3 py-2 hover:bg-gray-100 flex items-center justify-between">
+          {/* Bên trái: avatar + nội dung */}
+          <div className="flex items-center space-x-2">
+            <Avatar src={avatar}/>
+            <div>
+              <div className="font-semibold text-sm text-blue-900 flex items-center">
+                Thầy Chung
+              </div>
+              <div className="text-xs text-gray-500">alo alo...</div>
+            </div>
           </div>
-          <span className="text-xs text-gray-400">33 phút</span>
+
+          {/* Bên phải: thời gian + badge */}
+          <div className="flex flex-col items-end space-y-1">
+            <span className="text-xs text-gray-400">Vài giây</span>
+            <span className="bg-red-600 text-white text-[10px] px-2 rounded-full">
+              1
+            </span>
+          </div>
         </div>
       </div>
     </div>

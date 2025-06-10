@@ -4,7 +4,7 @@ import MessageItem from "./MessageItem";
 
 const ChatBox = () => {
   return (
-    <div className="flex-1 flex flex-col bg-[#F1F2F4]">
+    <div className="flex-1  flex flex-col bg-[#F1F2F4]">
       <ChatHeader />
 
       {/* Nội dung tin nhắn */}

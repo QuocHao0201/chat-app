@@ -61,7 +61,8 @@ export default function LoginForm() {
         setShowModal(true);
         setLoginStatus("Vui lòng thử lại.");
       } else {
-        navigate("/home");
+        console.log(data);
+        navigate("/home", { state: { userName: data.account.user.fullName } });
       }
     } catch (err) {
       setModalMessage(err.response?.data?.message || "❌ Đăng nhập thất bại!");
