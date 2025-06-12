@@ -1,9 +1,9 @@
 import { CiSearch } from "react-icons/ci";
 import { IoPersonAddOutline } from "react-icons/io5";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
-import TabNavigation from "./TabNavigation";
-import Avatar from "./Avatar";
-import avatar from "../assets/avt.jfif"
+import TabNavigation from "../TabNavigation";
+import Avatar from "../Avatar";
+import avatar from "../../assets/avt.jfif"
 
 const ChatList = ({ sizeIcon }) => {
   return (

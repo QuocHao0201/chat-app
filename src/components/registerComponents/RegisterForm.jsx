@@ -1,30 +1,19 @@
 import React, { useState } from "react";
 import { FiPhone, FiLock } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
-import PhoneValidate from "../utils/PhoneValidate";
-import PasswordValidate from "../utils/PasswordValidate";
-import FullNameValidate from "../utils/FullNameValidate";
-import GenderValidate from "../utils/GenderValidate";
-import DateOfBirthValidate from "../utils/DateOfBirthValidate";
-import EmailValidate from "../utils/EmailValidate";
-import { signUp } from "../api/auth/signUp";
+import PhoneValidate from "../../utils/PhoneValidate";
+import PasswordValidate from "../../utils/PasswordValidate";
+import FullNameValidate from "../../utils/FullNameValidate";
+import GenderValidate from "../../utils/GenderValidate";
+import DateOfBirthValidate from "../../utils/DateOfBirthValidate";
+import EmailValidate from "../../utils/EmailValidate";
+import { signUp } from "../../api/auth/signUp";
+import { sendOTP } from "../../api/auth/sendOTP";
+import { login } from "../../api/auth/login";
+import ModalOTP from "../../components/shared/modals/ModalOTP";
 
-// ✅ Modal hiển thị lỗi
-function Modal({ message, onClose }) {
-  return (
-    <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
-        <p className="text-red-600 text-sm font-medium mb-4">{message}</p>
-        <button
-          onClick={onClose}
-          className="px-4 py-2 bg-[#0068ff] text-white rounded-md hover:bg-[#0050cc] transition"
-        >
-          Đóng
-        </button>
-      </div>
-    </div>
-  );
-}
+import { useRecoilState } from "recoil";
+import { authState } from "../../state/atom";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({
@@ -40,8 +29,12 @@ export default function RegisterForm() {
   const [registerStatus, setRegisterStatus] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otpError, setOtpError] = useState("");
 
   const navigate = useNavigate();
+  const [loginResult, setLoginResult] = useRecoilState(authState);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -50,24 +43,17 @@ export default function RegisterForm() {
   const handleRegister = async () => {
     const newErrors = {};
 
-    if (!FullNameValidate(form.fullName)) {
+    if (!FullNameValidate(form.fullName))
       newErrors.fullName = "❌ Họ tên không hợp lệ";
-    }
-    if (!PhoneValidate(form.phone)) {
+    if (!PhoneValidate(form.phone))
       newErrors.phone = "❌ Số điện thoại không hợp lệ";
-    }
-    if (!PasswordValidate(form.password)) {
+    if (!PasswordValidate(form.password))
       newErrors.password = "❌ Mật khẩu không hợp lệ";
-    }
-    if (!GenderValidate(form.gender)) {
+    if (!GenderValidate(form.gender))
       newErrors.gender = "❌ Vui lòng chọn giới tính";
-    }
-    if (!DateOfBirthValidate(form.dateOfBirth)) {
+    if (!DateOfBirthValidate(form.dateOfBirth))
       newErrors.dateOfBirth = "❌ Vui lòng chọn ngày sinh";
-    }
-    if (!EmailValidate(form.email)) {
-      newErrors.email = "❌ Email không hợp lệ";
-    }
+    if (!EmailValidate(form.email)) newErrors.email = "❌ Email không hợp lệ";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -75,25 +61,63 @@ export default function RegisterForm() {
     }
 
     try {
-      const data = await signUp(form);
+      await sendOTP(form.email);
+      setRegisterStatus("✅ Mã OTP đã được gửi đến email.");
+      setShowOTPModal(true);
+    } catch (error) {
+      setModalMessage(error.response?.data?.message || "❌ Gửi OTP thất bại!");
+      setShowModal(true);
+    }
+  };
+
+  const handleConfirmOTP = async () => {
+    const enteredOTP = otp.join("");
+
+    if (enteredOTP.length !== 6) {
+      setOtpError("❌ Vui lòng nhập đầy đủ 6 số OTP!");
+      return;
+    }
+
+    try {
+      const payload = { ...form, authOTP: enteredOTP };
+      const data = await signUp(payload);
+
       if (data.success === false) {
-        setModalMessage(data.message || "❌ Đăng ký thất bại!");
-        setShowModal(true);
+        setOtpError(data.message || "❌ Xác minh OTP thất bại!");
       } else {
-        navigate("/home");
+        const dataLogin = await login(form.phone, form.password);
+
+        // ✅ Gán authState sau khi đăng ký + đăng nhập thành công
+        setLoginResult(dataLogin.data);
+
+        navigate("/home", {
+          state: {
+            userName: dataLogin.data.account.user.fullName,
+            gender: dataLogin.data.account.user.gender,
+          },
+        });
       }
     } catch (error) {
-      setModalMessage(error.response?.data?.message || "❌ Đăng ký thất bại!");
-      setShowModal(true);
+      setOtpError(error.response?.data?.message || "❌ Xác minh OTP thất bại!");
+    }
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      await sendOTP(form.email);
+      setRegisterStatus("✅ Mã OTP đã gửi lại.");
+    } catch {
+      setOtpError("❌ Không thể gửi lại mã OTP!");
     }
   };
 
   return (
     <>
       <div className="bg-white w-[400px] mx-auto rounded-2xl shadow-md px-8 py-6 text-left mt-8">
-        <h3 className="text-lg font-bold mb-6 text-center">Tạo tài khoản Zalo</h3>
+        <h3 className="text-lg font-bold mb-6 text-center">
+          Tạo tài khoản Zalo
+        </h3>
 
-        {/* Họ tên */}
         <div className="mb-4">
           <input
             type="text"
@@ -103,10 +127,11 @@ export default function RegisterForm() {
             onChange={handleChange}
             className="w-full border-b border-gray-300 py-2 outline-none bg-transparent"
           />
-          {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
+          {errors.fullName && (
+            <p className="text-red-500 text-sm">{errors.fullName}</p>
+          )}
         </div>
 
-        {/* Số điện thoại */}
         <div className="mb-4">
           <div className="flex items-center border-b border-gray-300 py-2">
             <FiPhone className="text-gray-500 mr-2" />
@@ -120,10 +145,11 @@ export default function RegisterForm() {
               className="w-full outline-none bg-transparent"
             />
           </div>
-          {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+          {errors.phone && (
+            <p className="text-red-500 text-sm">{errors.phone}</p>
+          )}
         </div>
 
-        {/* Email */}
         <div className="mb-4">
           <input
             type="email"
@@ -133,10 +159,11 @@ export default function RegisterForm() {
             onChange={handleChange}
             className="w-full border-b border-gray-300 py-2 outline-none bg-transparent"
           />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
         </div>
 
-        {/* Mật khẩu */}
         <div className="mb-4">
           <div className="flex items-center border-b border-gray-300 py-2">
             <FiLock className="text-gray-500 mr-2" />
@@ -149,10 +176,11 @@ export default function RegisterForm() {
               className="w-full outline-none bg-transparent"
             />
           </div>
-          {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
         </div>
 
-        {/* Giới tính */}
         <div className="mb-4">
           <select
             name="gender"
@@ -165,10 +193,11 @@ export default function RegisterForm() {
             <option value="female">Nữ</option>
             <option value="other">Khác</option>
           </select>
-          {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
+          {errors.gender && (
+            <p className="text-red-500 text-sm">{errors.gender}</p>
+          )}
         </div>
 
-        {/* Ngày sinh */}
         <div className="mb-4">
           <input
             type="date"
@@ -177,10 +206,11 @@ export default function RegisterForm() {
             onChange={handleChange}
             className="w-full border-b border-gray-300 py-2 outline-none bg-transparent"
           />
-          {errors.dateOfBirth && <p className="text-red-500 text-sm">{errors.dateOfBirth}</p>}
+          {errors.dateOfBirth && (
+            <p className="text-red-500 text-sm">{errors.dateOfBirth}</p>
+          )}
         </div>
 
-        {/* Nút đăng ký */}
         <button
           onClick={handleRegister}
           className="w-full bg-[#61b3ff] hover:bg-[#429eff] text-white font-semibold py-2 rounded-md transition duration-200"
@@ -188,14 +218,6 @@ export default function RegisterForm() {
           Đăng ký tài khoản
         </button>
 
-        {/* Trạng thái */}
-        {registerStatus && (
-          <p className="text-center text-sm mt-4 text-[#0068ff] font-medium">
-            {registerStatus}
-          </p>
-        )}
-
-        {/* Quay lại đăng nhập */}
         <div className="text-center mt-4">
           <Link to="/" className="text-[#0068ff] font-semibold hover:underline">
             Quay lại đăng nhập
@@ -203,9 +225,22 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {/* Modal thông báo lỗi */}
       {showModal && (
         <Modal message={modalMessage} onClose={() => setShowModal(false)} />
+      )}
+      {showOTPModal && (
+        <ModalOTP
+          otp={otp}
+          setOtp={setOtp}
+          onClose={() => {
+            setShowOTPModal(false);
+            setOtpError("");
+          }}
+          onConfirm={handleConfirmOTP}
+          onResend={handleResendOTP}
+          registerStatus={registerStatus}
+          otpError={otpError}
+        />
       )}
     </>
   );

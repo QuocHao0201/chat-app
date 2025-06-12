@@ -1,10 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { RecoilRoot } from 'recoil'; // 💡 Thêm dòng này
+import './index.css';
+import App from './App.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
-)
+    <RecoilRoot> {/* 💡 Bọc App trong RecoilRoot */}
+      <App />
+    </RecoilRoot>
+  </StrictMode>
+);

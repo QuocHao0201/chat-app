@@ -1,18 +1,17 @@
 import Sidebar from "../components/Sidebar";
-import ChatList from "../components/ChatList";
-import ChatBox from "../components/ChatBox";
-import { useLocation } from "react-router-dom";
+
+import { useRecoilValue } from "recoil";
+import { authState } from "../state/atom";
+import ChatBox from "../components/chatComponents/ChatBox";
+import ChatList from "../components/chatComponents/ChatList";
 
 const Home = () => {
-  const location = useLocation();
-  const userName = location.state?.userName || "Người dùng";
-  const gender = location.state?.gender || "Giới tính"
-  console.log(location.state);
+  const loginResult = useRecoilValue(authState)
   
   return (
     <div className="flex h-screen">
-      <Sidebar userName={userName} gender={gender}/>
-      <ChatList userName={userName}sizeIcon={16} />
+      <Sidebar userName={loginResult.account.user.fullName} gender={loginResult.account.user.gender}/>
+      <ChatList userName={loginResult.account.user.fullName}sizeIcon={16} />
       <ChatBox />
     </div>
   );

@@ -2,14 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import { RiContactsBook3Line } from "react-icons/ri";
 import { IoMdCloudOutline } from "react-icons/io";
-import { IoSettingsOutline, IoClose } from "react-icons/io5";
+import { IoSettingsOutline } from "react-icons/io5";
 import { PiToolboxLight } from "react-icons/pi";
 import avatar from "../assets/avt.jfif";
+import { useRecoilValue } from "recoil";
+import { authState } from "../state/atom";
+import ProfileModal from "../components/shared/modals/ProfileModal";
 
-const Sidebar = ({userName, gender, dateOfBirth, phone}) => {
+const Sidebar = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const dropdownRef = useRef(null);
+
+  const loginResult = useRecoilValue(authState);
 
   const handleAvatarClick = () => {
     setDropdownOpen(!isDropdownOpen);
@@ -19,7 +24,6 @@ const Sidebar = ({userName, gender, dateOfBirth, phone}) => {
     setShowModal(false);
   };
 
-  // Close dropdown when click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -53,7 +57,9 @@ const Sidebar = ({userName, gender, dateOfBirth, phone}) => {
           {/* Dropdown menu */}
           {isDropdownOpen && (
             <div className="absolute top-[0] left-[65px] w-60 bg-white shadow-lg rounded-md py-2 z-50">
-              <div className="px-4 py-2 font-semibold">Huỳnh Quốc Hào</div>
+              <div className="px-4 py-2 font-semibold">
+                {loginResult?.account?.user?.fullName || "User"}
+              </div>
               <hr />
               <button
                 className="w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -101,63 +107,17 @@ const Sidebar = ({userName, gender, dateOfBirth, phone}) => {
         </div>
       </div>
 
-      {/* MODAL: Thông tin tài khoản */}
-      {showModal && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50"
-          onClick={handleCloseModal}
-        >
-          <div
-            className="bg-white rounded-md w-[400px] p-4 relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={handleCloseModal}
-              className="absolute top-3 right-3 text-2xl text-gray-600 hover:text-black"
-            >
-              <IoClose />
-            </button>
-
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold">Thông tin tài khoản</h2>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <img
-                src={avatar}
-                alt="avatar"
-                className="w-20 h-20 rounded-full object-cover mb-2"
-              />
-              <h3 className="text-xl font-bold">{userName}</h3>
-            </div>
-
-            <div className="mt-4">
-              <div className="mb-2">
-                <label className="text-sm text-gray-600">Giới tính</label>
-                <div className="font-medium">{gender}</div>
-              </div>
-
-              <div className="mb-2">
-                <label className="text-sm text-gray-600">Ngày sinh</label>
-                <div className="font-medium">{dateOfBirth}</div>
-              </div>
-
-              <div className="mb-2">
-                <label className="text-sm text-gray-600">Điện thoại</label>
-                <div className="font-medium">{phone}</div>
-              </div>
-
-              <div className="text-xs text-gray-500 italic">
-                Chỉ bạn bè có lưu số của bạn trong danh bạ máy xem được số này
-              </div>
-
-              <button className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
-                Cập nhật
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* PROFILE MODAL */}
+      <ProfileModal
+        show={showModal}
+        onClose={handleCloseModal}
+        userInfo={{
+          fullName: loginResult?.account?.user?.fullName,
+          gender: loginResult?.account?.user?.gender,
+          dateOfBirth: loginResult?.account?.user?.dateOfBirth,
+          phone: loginResult?.account?.phone,
+        }}
+      />
     </>
   );
 };
