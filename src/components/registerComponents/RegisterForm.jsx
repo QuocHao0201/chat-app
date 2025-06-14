@@ -10,7 +10,7 @@ import EmailValidate from "../../utils/EmailValidate";
 import { signUp } from "../../api/auth/signUp";
 import { sendOTP } from "../../api/auth/sendOTP";
 import { login } from "../../api/auth/login";
-import ModalOTP from "../../components/shared/modals/ModalOTP";
+import ModalOTP from "../shared/modals/ModalOTP";
 
 import { useRecoilState } from "recoil";
 import { authState } from "../../state/atom";
@@ -225,9 +225,9 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {showModal && (
+      {/* {showModal && (
         <Modal message={modalMessage} onClose={() => setShowModal(false)} />
-      )}
+      )} */}
       {showOTPModal && (
         <ModalOTP
           otp={otp}
