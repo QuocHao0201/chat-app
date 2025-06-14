@@ -1,36 +1,27 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FiPhone, FiLock } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
-import throttle from "lodash.throttle";
-import {
-  useRecoilState,
-  useRecoilValueLoadable,
-  useSetRecoilState,
-} from "recoil";
+import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
 
 import PhoneValidate from "../../utils/PhoneValidate";
 import PasswordValidate from "../../utils/PasswordValidate";
-import { login } from "../../api/auth/login";
-import {
-  authState,
-  loginSelector,
-  loginStateAtom,
-  passwordAtom,
-  phoneAtom,
-} from "../../state/atom";
-import LoginErrorModal from "../../components/shared/modals/LoginErrorModal";
+import LoginErrorModal from "../shared/modals/LoginErrorModal";
+import { authState, loginParamsState } from "../../state/auth/atoms";
+import { loginSelector } from "../../state";
 
 export default function LoginForm() {
-  const [phoneNumber, setPhoneNumber] = useRecoilState(phoneAtom);
-  const [password, setPassword] = useRecoilState(passwordAtom);
-  const [isLoginStatus, setIsLoginStatus] = useRecoilState(loginStateAtom);
+  // recoil global states
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const setLoginState = useSetRecoilState(loginParamsState);
   const loginResult = useRecoilValueLoadable(loginSelector);
+  const setLoginResult = useSetRecoilState(authState);
+
+  // local component states
   const [errors, setErrors] = useState({});
   const [loginStatusMessage, setLoginStatusMessage] = useState("");
   const [showModalLoginError, setShowModalLoginError] = useState(false);
   const [modalMessageLoginError, setModalMessageLoginError] = useState("");
-
-  const setLoginResult = useSetRecoilState(authState);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -54,55 +45,26 @@ export default function LoginForm() {
 
     setErrors({});
     setLoginStatusMessage("");
-
-    setIsLoginStatus(true);
-
-    if (loginResult.state == "hasValue") {
-      setLoginResult(dataLogin.data);
-      navigate("/home");
-    }
-
-    // try {
-    //   const dataLogin = await login(phoneNumber, password);
-
-    //   if (!dataLogin.success) {
-    //     setModalMessageLoginError(dataLogin.message);
-    //     setShowModalLoginError(true);
-    //     setLoginStatusMessage("Vui lòng thử lại.");
-    //   } else {
-    //     setLoginResult(dataLogin.data); // Lưu dữ liệu đăng nhập vào Recoil
-    //     navigate("/home");
-    //   }
-    // } catch (err) {
-    //   setModalMessageLoginError(
-    //     err.response?.data?.message || "❌ Đăng nhập thất bại!"
-    //   );
-    //   setShowModalLoginError(true);
-    //   setLoginStatusMessage("Vui lòng thử lại.");
-    // }
+    setLoginState({
+      phoneNumber,
+      password,
+    });
   };
+
   useEffect(() => {
     switch (loginResult.state) {
       case "hasValue":
-        console.log("[login content]", loginResult.contents);
-        setLoginResult(loginResult.contents?.data);
-        // navigate("/home");
-        setIsLoginStatus(false);
-      case "loading":
-        setIsLoginStatus(false);
-        return;
+        if (loginResult.contents) {
+          setLoginResult(loginResult.contents);
+          navigate("/home");
+        }
+        break;
       case "hasError":
-        setIsLoginStatus(false);
-        console.log("[login content]", loginResult.errorMaybe);
+        setModalMessageLoginError(loginResult.contents?.message);
+        setShowModalLoginError(true);
+        setLoginStatusMessage("Vui lòng thử lại.");
     }
-  }, [loginResult]);
-
-  const throttledHandleLogin = useCallback(
-    throttle(() => {
-      handleLogin();
-    }, 3000),
-    [phoneNumber, password]
-  );
+  }, [loginResult, navigate, setLoginResult]);
 
   return (
     <>
@@ -148,10 +110,14 @@ export default function LoginForm() {
 
         {/* Nút đăng nhập */}
         <button
-          onClick={throttledHandleLogin}
+          onClick={handleLogin}
           className="w-full bg-[#61b3ff] hover:bg-[#429eff] text-white font-semibold py-2 rounded-md transition duration-200"
         >
-          Đăng nhập với mật khẩu
+          {loginResult.state === "loading" ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Đăng nhập với mật khẩu"
+          )}
         </button>
 
         {/* Thông báo lỗi */}

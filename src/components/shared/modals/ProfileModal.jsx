@@ -2,23 +2,21 @@ import React, { useState, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 import avatar from "../../../assets/avt.jfif";
 import { useRecoilState } from "recoil";
-import { authState } from "../../../state/atom";
-import { updateUserProfile } from "../../../api/auth/updateUserProfile";
 import {
   formatDate,
   formatPhoneNumber,
   formatGender,
 } from "../../../utils/formatters";
-import { motion } from "framer-motion";
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
+import { authState } from "../../../state/auth/atoms";
 
 const ProfileModal = ({ show, onClose }) => {
-  const [auth, setAuthState] = useRecoilState(authState);
+  const [auth, _setAuthState] = useRecoilState(authState);
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   // Lấy token từ authState chính xác
-  const token = auth.accessToken;
+  const _token = auth.accessToken;
 
   // Lấy user info từ authState
   const user = auth.account.user;
@@ -42,39 +40,37 @@ const ProfileModal = ({ show, onClose }) => {
   if (!show) return null;
 
   const handleUpdateProfile = async () => {
-    const updatedData = {
-      fullName,
-      gender,
-      dateOfBirth: `${year}-${month}-${day}`, // format yyyy-mm-dd
-    };
-
-    try {
-      const result = await updateUserProfile(updatedData, token);
-
-      if (result && result._id) {
-        // Cập nhật thành công
-        setAuthState((prev) => ({
-          ...prev,
-          account: {
-            ...prev.account,
-            user: {
-              ...prev.account.user,
-              fullName,
-              gender,
-              dateOfBirth: `${year}-${month}-${day}`,
-            },
-          },
-        }));
-        setShowSuccess(true);
-        setIsEditing(false);
-      } else {
-         toast.success("haha",{
-          duration:2000
-         })
-      }
-    } catch (err) {
-      alert(err.message || "Lỗi khi cập nhật");
-    }
+    // const updatedData = {
+    //   fullName,
+    //   gender,
+    //   dateOfBirth: `${year}-${month}-${day}`, // format yyyy-mm-dd
+    // };
+    // try {
+    //   const result = await updateUserProfile(updatedData, token);
+    //   if (result && result._id) {
+    //     // Cập nhật thành công
+    //     setAuthState((prev) => ({
+    //       ...prev,
+    //       account: {
+    //         ...prev.account,
+    //         user: {
+    //           ...prev.account.user,
+    //           fullName,
+    //           gender,
+    //           dateOfBirth: `${year}-${month}-${day}`,
+    //         },
+    //       },
+    //     }));
+    //     setShowSuccess(true);
+    //     setIsEditing(false);
+    //   } else {
+    //     toast.success("haha", {
+    //       duration: 2000,
+    //     });
+    //   }
+    // } catch (err) {
+    //   alert(err.message || "Lỗi khi cập nhật");
+    // }
   };
 
   return (
@@ -122,7 +118,9 @@ const ProfileModal = ({ show, onClose }) => {
 
                 <div className="mb-2">
                   <label className="text-sm text-gray-600">Ngày sinh</label>
-                  <div className="font-medium">{formatDate(user.dateOfBirth)}</div>
+                  <div className="font-medium">
+                    {formatDate(user.dateOfBirth)}
+                  </div>
                 </div>
 
                 <div className="mb-2">
@@ -160,7 +158,9 @@ const ProfileModal = ({ show, onClose }) => {
                 >
                   ←
                 </button>
-                <h2 className="text-lg font-semibold">Cập nhật thông tin cá nhân</h2>
+                <h2 className="text-lg font-semibold">
+                  Cập nhật thông tin cá nhân
+                </h2>
                 <IoClose
                   onClick={onClose}
                   className="text-2xl text-gray-600 hover:text-black cursor-pointer"
@@ -222,7 +222,10 @@ const ProfileModal = ({ show, onClose }) => {
                       className="border rounded px-2 py-1"
                     >
                       {[...Array(31)].map((_, i) => (
-                        <option key={i + 1} value={String(i + 1).padStart(2, "0")}>
+                        <option
+                          key={i + 1}
+                          value={String(i + 1).padStart(2, "0")}
+                        >
                           {String(i + 1).padStart(2, "0")}
                         </option>
                       ))}
@@ -233,7 +236,10 @@ const ProfileModal = ({ show, onClose }) => {
                       className="border rounded px-2 py-1"
                     >
                       {[...Array(12)].map((_, i) => (
-                        <option key={i + 1} value={String(i + 1).padStart(2, "0")}>
+                        <option
+                          key={i + 1}
+                          value={String(i + 1).padStart(2, "0")}
+                        >
                           {String(i + 1).padStart(2, "0")}
                         </option>
                       ))}
@@ -243,11 +249,13 @@ const ProfileModal = ({ show, onClose }) => {
                       onChange={(e) => setYear(e.target.value)}
                       className="border rounded px-2 py-1"
                     >
-                      {Array.from({ length: 100 }, (_, i) => 2025 - i).map((y) => (
-                        <option key={y} value={y}>
-                          {y}
-                        </option>
-                      ))}
+                      {Array.from({ length: 100 }, (_, i) => 2025 - i).map(
+                        (y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        )
+                      )}
                     </select>
                   </div>
                 </div>

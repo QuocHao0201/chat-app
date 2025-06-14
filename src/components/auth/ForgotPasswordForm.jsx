@@ -1,9 +1,5 @@
 import React, { useState } from "react";
 import ModalOTP from "../shared/modals/ModalOTP";
-import { sendOTP } from "../../api/auth/sendOTP";
-import { requestResetPassword } from "../../api/auth/requestResetPassword";
-
-
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -14,22 +10,20 @@ export default function ForgotPasswordForm() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  
 
   const handleSendOTP = async () => {
-  if (!email.includes("@")) return alert("Vui lòng nhập email hợp lệ!");
+    if (!email.includes("@")) return alert("Vui lòng nhập email hợp lệ!");
 
-  try {
-    await requestResetPassword(email); // Gửi OTP qua email thật
-    setStep(2);
-    setRegisterStatus("Mã OTP đã được gửi đến email");
-    setOtp(["", "", "", "", "", ""]);
-    setOtpError("");
-  } catch (error) {
-    alert("Gửi OTP thất bại. Email không tồn tại hoặc lỗi hệ thống.");
-  }
-};
-
+    // try {
+    //   await requestResetPassword(email); // Gửi OTP qua email thật
+    //   setStep(2);
+    //   setRegisterStatus("Mã OTP đã được gửi đến email");
+    //   setOtp(["", "", "", "", "", ""]);
+    //   setOtpError("");
+    // } catch (error) {
+    //   alert("Gửi OTP thất bại. Email không tồn tại hoặc lỗi hệ thống.");
+    // }
+  };
 
   const handleConfirmOTP = () => {
     const enteredOtp = otp.join("");

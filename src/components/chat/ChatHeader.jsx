@@ -4,20 +4,21 @@ import { CiSearch } from "react-icons/ci";
 import { AiOutlineBars } from "react-icons/ai";
 
 import { useRecoilValue } from "recoil";
-import { authState } from "../../state/atom";
-
 
 import avatar from "../../assets/avt.jfif";
 import Avatar from "../Avatar";
+import { authState } from "../../state/auth/atoms";
 
 const ChatHeader = () => {
-    const loginResult = useRecoilValue(authState);
-  
+  const loginResult = useRecoilValue(authState);
+
   return (
     <div className="h-[60px] border border-gray-200 flex items-center px-4 justify-between bg-white">
       <div className="flex items-center space-x-2">
-        <Avatar src={avatar} alt="avatar" size={50}/>
-        <span className="font-semibold">{loginResult.account.user.fullName}</span>
+        <Avatar src={avatar} alt="avatar" size={50} />
+        <span className="font-semibold">
+          {loginResult.account.user.fullName}
+        </span>
       </div>
       <div className="space-x-3 text-gray-600 text-xl">
         <button className="hover:bg-[#ebecf0] p-2 rounded transition">
@@ -27,10 +28,10 @@ const ChatHeader = () => {
           <IoVideocamOutline />
         </button>
         <button className="hover:bg-[#ebecf0] p-2 rounded transition">
-          <CiSearch/>
+          <CiSearch />
         </button>
         <button className="hover:bg-[#ebecf0] p-2 rounded transition">
-          <AiOutlineBars/>
+          <AiOutlineBars />
         </button>
       </div>
     </div>

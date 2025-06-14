@@ -6,8 +6,8 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { PiToolboxLight } from "react-icons/pi";
 import avatar from "../assets/avt.jfif";
 import { useRecoilValue } from "recoil";
-import { authState } from "../state/atom";
 import ProfileModal from "../components/shared/modals/ProfileModal";
+import { authState } from "../state/auth/atoms";
 
 const Sidebar = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
