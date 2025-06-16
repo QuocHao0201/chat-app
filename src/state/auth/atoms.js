@@ -24,7 +24,10 @@ const defaultAuth = {
     updatedAt: "",
   },
 };
-
+export const sideBarTabs = atom({
+  default: "chat",
+  key: "sideBarTabs",
+});
 export const authState = atom({
   key: "authState",
   default: defaultAuth,

@@ -11,13 +11,13 @@ import { loginSelector } from "../../state";
 
 export default function LoginForm() {
   // recoil global states
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
   const setLoginState = useSetRecoilState(loginParamsState);
   const loginResult = useRecoilValueLoadable(loginSelector);
   const setLoginResult = useSetRecoilState(authState);
 
   // local component states
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [loginStatusMessage, setLoginStatusMessage] = useState("");
   const [showModalLoginError, setShowModalLoginError] = useState(false);

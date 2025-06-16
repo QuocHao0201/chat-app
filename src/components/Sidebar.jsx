@@ -5,14 +5,15 @@ import { IoMdCloudOutline } from "react-icons/io";
 import { IoSettingsOutline } from "react-icons/io5";
 import { PiToolboxLight } from "react-icons/pi";
 import avatar from "../assets/avt.jfif";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import ProfileModal from "../components/shared/modals/ProfileModal";
-import { authState } from "../state/auth/atoms";
+import { authState, sideBarTabs } from "../state/auth/atoms";
 
 const Sidebar = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const dropdownRef = useRef(null);
+  const steCurrentTab = useSetRecoilState(sideBarTabs);
 
   const loginResult = useRecoilValue(authState);
 
@@ -84,10 +85,16 @@ const Sidebar = () => {
         <div className="flex flex-col justify-between h-full w-full items-center">
           {/* Top icons */}
           <div className="flex flex-col space-y-2 text-white text-2xl mt-4">
-            <button className="hover:bg-[#0043a8] p-2 rounded transition">
+            <button
+              className="hover:bg-[#0043a8] p-2 rounded transition"
+              onClick={() => steCurrentTab("chat")}
+            >
               <BiSolidMessageRoundedDetail size={30} />
             </button>
-            <button className="hover:bg-[#0043a8] p-2 rounded transition">
+            <button
+              className="hover:bg-[#0043a8] p-2 rounded transition"
+              onClick={() => steCurrentTab("contract")}
+            >
               <RiContactsBook3Line size={30} />
             </button>
           </div>

@@ -5,7 +5,7 @@ class UserService {
     this.apiClient = new apiClient();
   }
 
-  async updateUserProfile(data) {
+  async updateUserProfile(data) { //{state params} => body
     const response = await apiClient.put("/users/update/profile", data);
     return response.data;
   }

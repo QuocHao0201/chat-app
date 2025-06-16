@@ -9,6 +9,8 @@ import {
 } from "../../../utils/formatters";
 // import toast from "react-hot-toast";
 import { authState } from "../../../state/auth/atoms";
+// eslint-disable-next-line no-unused-vars
+import { motion } from "framer-motion";
 
 const ProfileModal = ({ show, onClose }) => {
   const [auth, _setAuthState] = useRecoilState(authState);

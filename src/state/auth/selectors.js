@@ -11,6 +11,7 @@ export const loginSelector = selector({
     try {
       const payload = get(loginParamsState);
       if (!payload) return null;
+
       const dataLogin = await authService.login(
         payload.phoneNumber,
         payload.password

@@ -3,10 +3,11 @@ import Sidebar from "../components/Sidebar";
 import { useRecoilValue } from "recoil";
 import ChatBox from "../components/chat/ChatBox";
 import ChatList from "../components/chat/ChatList";
-import { authState } from "../state/auth/atoms";
+import { authState, sideBarTabs } from "../state/auth/atoms";
 
 const Home = () => {
   const loginResult = useRecoilValue(authState);
+  const currentTab = useRecoilValue(sideBarTabs);
 
   return (
     <div className="flex h-screen">
@@ -14,8 +15,17 @@ const Home = () => {
         userName={loginResult.account.user.fullName}
         gender={loginResult.account.user.gender}
       />
-      <ChatList userName={loginResult.account.user.fullName} sizeIcon={16} />
-      <ChatBox />
+      {currentTab == "chat" ? (
+        <>
+          <ChatList
+            userName={loginResult.account.user.fullName}
+            sizeIcon={16}
+          />
+          <ChatBox />
+        </>
+      ) : (
+        <div className="text-lg">hihi</div>
+      )}
     </div>
   );
 };
