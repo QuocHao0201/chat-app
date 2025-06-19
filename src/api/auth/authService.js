@@ -49,9 +49,22 @@ class AuthService {
   }
 
   async verifyOTP(email, otp) {
-    const response = await apiClient.post("/auth/verify-otp", { email, otp });
-    return response.data;
-  }
+  const response = await apiClient.post("/auth/verify-otp", {
+    email,
+    authOTP: otp, // ✅ Đúng với DTO backend yêu cầu
+  });
+  return response.data;
+}
+
+  async resetPassword({ email, authOTP, newPassword }) {
+  const response = await this.apiClient.put("/auth/reset-password", {
+    email,
+    authOTP,
+    newPassword,
+  });
+  return response.data;
+}
+
 }
 
 export default AuthService;

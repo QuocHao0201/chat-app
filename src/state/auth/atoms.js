@@ -46,3 +46,8 @@ export const signUpParamsState = atom({
   key: "signUpParamsState",
   default: null,
 });
+
+export const updateProfileParamsState = atom({
+  key: "updateProfileParamsState",
+  default: null, // hoặc {} nếu cần
+});

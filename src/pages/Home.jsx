@@ -4,6 +4,7 @@ import { useRecoilValue } from "recoil";
 import ChatBox from "../components/chat/ChatBox";
 import ChatList from "../components/chat/ChatList";
 import { authState, sideBarTabs } from "../state/auth/atoms";
+import Contract from "../components/contract/Contract";
 
 const Home = () => {
   const loginResult = useRecoilValue(authState);
@@ -23,8 +24,10 @@ const Home = () => {
           />
           <ChatBox />
         </>
-      ) : (
-        <div className="text-lg">hihi</div>
+      ) : currentTab == "contract"?(
+        <Contract/>
+      ):(
+        <div>haha</div>
       )}
     </div>
   );

@@ -2,7 +2,7 @@
 // src/recoil/authAtom.js
 import { selector } from "recoil";
 import AuthService from "../../api/auth/authService";
-import { loginParamsState, otpParamsState, signUpParamsState } from "./atoms";
+import { loginParamsState, otpParamsState, signUpParamsState, updateProfileParamsState } from "../auth/atoms";
 const authService = new AuthService();
 
 export const loginSelector = selector({

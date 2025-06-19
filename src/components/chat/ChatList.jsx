@@ -4,32 +4,18 @@ import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import TabNavigation from "../TabNavigation";
 import Avatar from "../Avatar";
 import avatar from "../../assets/avt.jfif"
+import SearchWithActions from "../SearchWithActions";
 
 const ChatList = ({ sizeIcon }) => {
   return (
     <div className="w-[300px] border border-gray-200 h-full overflow-y-auto bg-white">
-      {/* Thanh tìm kiếm + nút thêm */}
-      <div className="flex items-center gap-2 p-3">
-        {/* Input tìm kiếm với icon */}
-        <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-lg">
-            <CiSearch />
-          </span>
-          <input
-            type="text"
-            placeholder="Tìm kiếm"
-            className="w-full bg-[#ebecf0] pl-9 pr-3 py-[6px] text-sm rounded-md focus:outline-none"
-          />
-        </div>
-
-        {/* Nút thêm người */}
-        <button className="hover:bg-[#ebecf0] p-2 rounded transition">
-          <IoPersonAddOutline size={sizeIcon} />
-        </button>
-        <button className="hover:bg-[#ebecf0] p-2 rounded transition">
-          <AiOutlineUsergroupAdd size={sizeIcon} />
-        </button>
-      </div>
+     <SearchWithActions
+        sizeIcon={sizeIcon}
+        placeholder="Tìm kiếm"
+        onAddPerson={() => console.log("Thêm người")}
+        onAddGroup={() => console.log("Thêm nhóm")}
+        onSearchChange={(e) => console.log("Đang tìm:", e.target.value)}
+      />
 
       {/* Tabs */}
       <TabNavigation />
