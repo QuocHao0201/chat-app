@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiPhone, FiLock } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import PhoneValidate from "../../utils/PhoneValidate";
@@ -7,15 +7,25 @@ import FullNameValidate from "../../utils/FullNameValidate";
 import GenderValidate from "../../utils/GenderValidate";
 import DateOfBirthValidate from "../../utils/DateOfBirthValidate";
 import EmailValidate from "../../utils/EmailValidate";
-import { signUp } from "../../api/auth/signUp";
-import { sendOTP } from "../../api/auth/sendOTP";
-import { login } from "../../api/auth/login";
-import ModalOTP from "../../components/shared/modals/ModalOTP";
+import ModalOTP from "../shared/modals/ModalOTP";
 
-import { useRecoilState } from "recoil";
-import { authState } from "../../state/atom";
+import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
+import { sendOTPSelector, signUpSelector } from "../../state";
+import {
+  authState,
+  otpParamsState,
+  signUpParamsState,
+} from "../../state/auth/atoms";
+import LoginErrorModal from "../shared/modals/LoginErrorModal";
 
 export default function RegisterForm() {
+  const setSendOTPParams = useSetRecoilState(otpParamsState);
+  const sendOTPResult = useRecoilValueLoadable(sendOTPSelector);
+
+  const setSignUpParmas = useSetRecoilState(signUpParamsState);
+  const signUpResult = useRecoilValueLoadable(signUpSelector);
+
+  const setLoginResult = useSetRecoilState(authState);
   const [form, setForm] = useState({
     fullName: "",
     phone: "",
@@ -34,7 +44,6 @@ export default function RegisterForm() {
   const [otpError, setOtpError] = useState("");
 
   const navigate = useNavigate();
-  const [loginResult, setLoginResult] = useRecoilState(authState);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -60,15 +69,34 @@ export default function RegisterForm() {
       return;
     }
 
-    try {
-      await sendOTP(form.email);
+    setSendOTPParams(form.email);
+  };
+
+  useEffect(() => {
+    if (sendOTPResult.state == "hasError") {
+      setModalMessage(
+        sendOTPResult.contents?.message || "❌ Gửi OTP thất bại!"
+      );
+      setShowModal(true);
+      setSendOTPParams("");
+    } else if (sendOTPResult.state == "hasValue" && sendOTPResult.contents) {
       setRegisterStatus("✅ Mã OTP đã được gửi đến email.");
       setShowOTPModal(true);
-    } catch (error) {
-      setModalMessage(error.response?.data?.message || "❌ Gửi OTP thất bại!");
-      setShowModal(true);
+      setSendOTPParams("");
     }
-  };
+  }, [sendOTPResult]);
+
+  useEffect(() => {
+    if (signUpResult.state == "hasError") {
+      setOtpError(signUpResult.contents.message || "❌ Xác minh OTP thất bại!");
+      setShowModal(true);
+      setSignUpParmas(null);
+    } else if (signUpResult.state == "hasValue" && signUpResult.contents) {
+      setLoginResult(signUpResult.contents);
+      setSignUpParmas(null);
+      navigate("/home");
+    }
+  }, [signUpResult]);
 
   const handleConfirmOTP = async () => {
     const enteredOTP = otp.join("");
@@ -78,37 +106,8 @@ export default function RegisterForm() {
       return;
     }
 
-    try {
-      const payload = { ...form, authOTP: enteredOTP };
-      const data = await signUp(payload);
-
-      if (data.success === false) {
-        setOtpError(data.message || "❌ Xác minh OTP thất bại!");
-      } else {
-        const dataLogin = await login(form.phone, form.password);
-
-        // ✅ Gán authState sau khi đăng ký + đăng nhập thành công
-        setLoginResult(dataLogin.data);
-
-        navigate("/home", {
-          state: {
-            userName: dataLogin.data.account.user.fullName,
-            gender: dataLogin.data.account.user.gender,
-          },
-        });
-      }
-    } catch (error) {
-      setOtpError(error.response?.data?.message || "❌ Xác minh OTP thất bại!");
-    }
-  };
-
-  const handleResendOTP = async () => {
-    try {
-      await sendOTP(form.email);
-      setRegisterStatus("✅ Mã OTP đã gửi lại.");
-    } catch {
-      setOtpError("❌ Không thể gửi lại mã OTP!");
-    }
+    const payload = { ...form, authOTP: enteredOTP };
+    setSignUpParmas(payload);
   };
 
   return (
@@ -215,7 +214,11 @@ export default function RegisterForm() {
           onClick={handleRegister}
           className="w-full bg-[#61b3ff] hover:bg-[#429eff] text-white font-semibold py-2 rounded-md transition duration-200"
         >
-          Đăng ký tài khoản
+          {sendOTPResult.state == "loading" ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Đăng ký tài khoản"
+          )}
         </button>
 
         <div className="text-center mt-4">
@@ -226,7 +229,10 @@ export default function RegisterForm() {
       </div>
 
       {showModal && (
-        <Modal message={modalMessage} onClose={() => setShowModal(false)} />
+        <LoginErrorModal
+          message={modalMessage}
+          onClose={() => setShowModal(false)}
+        />
       )}
       {showOTPModal && (
         <ModalOTP
@@ -237,9 +243,10 @@ export default function RegisterForm() {
             setOtpError("");
           }}
           onConfirm={handleConfirmOTP}
-          onResend={handleResendOTP}
+          onResend={() => setSendOTPParams(form.email)}
           registerStatus={registerStatus}
           otpError={otpError}
+          isLoading={signUpResult.state == "loading"}
         />
       )}
     </>

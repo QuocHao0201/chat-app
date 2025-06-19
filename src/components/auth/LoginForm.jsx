@@ -1,64 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiPhone, FiLock } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
+import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
+
 import PhoneValidate from "../../utils/PhoneValidate";
 import PasswordValidate from "../../utils/PasswordValidate";
-import { login } from "../../api/auth/login";
-import { useRecoilState } from "recoil";
-import { authState } from "../../state/atom";
-
-import LoginErrorModal from "../../components/shared/modals/LoginErrorModal";
+import LoginErrorModal from "../shared/modals/LoginErrorModal";
+import { authState, loginParamsState } from "../../state/auth/atoms";
+import { loginSelector } from "../../state";
 
 export default function LoginForm() {
+  // recoil global states
+  const setLoginState = useSetRecoilState(loginParamsState);
+  const loginResult = useRecoilValueLoadable(loginSelector);
+  const setLoginResult = useSetRecoilState(authState);
+
+  // local component states
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
-  const [loginStatus, setLoginStatus] = useState("");
+  const [loginStatusMessage, setLoginStatusMessage] = useState("");
   const [showModalLoginError, setShowModalLoginError] = useState(false);
   const [modalMessageLoginError, setModalMessageLoginError] = useState("");
-
-  const [loginResult, setLoginResult] = useRecoilState(authState);
-
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     const newErrors = {};
 
-    // ✅ Validate
+    // Validate số điện thoại
     if (!PhoneValidate(phoneNumber)) {
       newErrors.phoneNumber = "❌ Số điện thoại không hợp lệ";
     }
 
+    // Validate mật khẩu
     if (!PasswordValidate(password)) {
       newErrors.password = "❌ Mật khẩu không hợp lệ";
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      setLoginStatus("Vui lòng thử lại.");
+      setLoginStatusMessage("Vui lòng thử lại.");
       return;
     }
 
     setErrors({});
-    setLoginStatus(""); // Reset trước khi gửi
-
-    try {
-      const dataLogin = await login(phoneNumber, password);
-      if (dataLogin.success === false) {
-        setModalMessageLoginError(dataLogin.message);
-        setShowModalLoginError(true);
-        setLoginStatus("Vui lòng thử lại.");
-      } else {
-        // console.log(dataLogin.data);
-        setLoginResult(dataLogin.data);
-        navigate("/home");
-      }
-    } catch (err) {
-      setModalMessageLoginError(err.response?.data?.message || "❌ Đăng nhập thất bại!");
-      setShowModalLoginError(true);
-      setLoginStatus("Vui lòng thử lại.");
-    }
+    setLoginStatusMessage("");
+    setLoginState({
+      phoneNumber,
+      password,
+    });
   };
+
+  useEffect(() => {
+    switch (loginResult.state) {
+      case "hasValue":
+        if (loginResult.contents) {
+          setLoginResult(loginResult.contents);
+          navigate("/home");
+        }
+        break;
+      case "hasError":
+        setModalMessageLoginError(loginResult.contents?.message);
+        setShowModalLoginError(true);
+        setLoginStatusMessage("Vui lòng thử lại.");
+    }
+  }, [loginResult, navigate, setLoginResult]);
 
   return (
     <>
@@ -107,24 +113,31 @@ export default function LoginForm() {
           onClick={handleLogin}
           className="w-full bg-[#61b3ff] hover:bg-[#429eff] text-white font-semibold py-2 rounded-md transition duration-200"
         >
-          Đăng nhập với mật khẩu
+          {loginResult.state === "loading" ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Đăng nhập với mật khẩu"
+          )}
         </button>
 
-        {/* Hiển thị lỗi dưới nút */}
-        {loginStatus && (
+        {/* Thông báo lỗi */}
+        {loginStatusMessage && (
           <p className="text-center text-sm mt-4 text-red-500 font-medium">
-            {loginStatus}
+            {loginStatusMessage}
           </p>
         )}
 
         {/* Quên mật khẩu */}
         <div className="text-center mt-4">
-          <a href="#" className="text-[#0068ff] text-sm hover:underline">
-            Quên mật khẩu
-          </a>
+          <Link
+            to="/forgot-password"
+            className="text-[#0068ff] text-sm hover:underline"
+          >
+            Quên mật khẩu?
+          </Link>
         </div>
 
-        {/* Chuyển sang Đăng ký */}
+        {/* Chuyển sang đăng ký */}
         <div className="text-center mt-4">
           <Link
             to="/register"

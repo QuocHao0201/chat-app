@@ -1,6 +1,15 @@
 import React from "react";
 
-export default function ModalOTP({ onClose, onConfirm, onResend, otp, setOtp, registerStatus, otpError }) {
+export default function ModalOTP({
+  onClose,
+  onConfirm,
+  onResend,
+  otp,
+  setOtp,
+  registerStatus,
+  otpError,
+  isLoading,
+}) {
   const handleChange = (e, index) => {
     const newOtp = [...otp];
     newOtp[index] = e.target.value.slice(-1);
@@ -13,7 +22,9 @@ export default function ModalOTP({ onClose, onConfirm, onResend, otp, setOtp, re
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
-        <h3 className="text-lg font-bold mb-2 text-[#0068ff]">Nhập mã xác nhận</h3>
+        <h3 className="text-lg font-bold mb-2 text-[#0068ff]">
+          Nhập mã xác nhận
+        </h3>
 
         {registerStatus && (
           <p className="text-sm text-green-600 mb-2">{registerStatus}</p>
@@ -50,8 +61,13 @@ export default function ModalOTP({ onClose, onConfirm, onResend, otp, setOtp, re
             onClick={onConfirm}
             className="bg-[#0068ff] text-white px-4 py-2 rounded-md hover:bg-[#0050cc]"
           >
-            Xác nhận
+            {isLoading ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : (
+              "Xác nhận"
+            )}
           </button>
+
           <button
             onClick={onClose}
             className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400"
